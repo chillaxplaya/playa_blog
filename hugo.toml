@@ -1,4 +1,9 @@
 baseURL = 'https://example.org/'
 locale = 'en-us'
 title = 'My New Hugo Project'
-theme = 'ananke'
+theme = "hugo-trainsh"
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
+[params]
+mainSections = ["posts"]
