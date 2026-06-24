@@ -1,0 +1,12 @@
+{{/* Notice shortcode: tip | warning | info | danger */}}
+{{- $type := .Get 0 | default "info" -}}
+{{- $icon := "ℹ️" -}}
+{{- if eq $type "tip" }}{{ $icon = "💡" }}{{ end -}}
+{{- if eq $type "warning" }}{{ $icon = "⚠️" }}{{ end -}}
+{{- if eq $type "danger" }}{{ $icon = "🚫" }}{{ end -}}
+<div class="notice notice-{{ $type }}">
+  <span class="notice-icon">{{ $icon }}</span>
+  <div class="notice-content">
+    {{ .Inner | markdownify }}
+  </div>
+</div>

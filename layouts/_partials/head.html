@@ -1,0 +1,166 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ printf "%s | %s" .Title .Site.Title }}{{ end }}</title>
+
+{{- /* ======================================================================
+   SEO meta tags — description, Open Graph, Twitter Card, JSON-LD
+   ====================================================================== */ -}}
+
+{{- $description := "" -}}
+{{- with .Params.summary -}}
+  {{- $description = . | plainify | truncate 160 -}}
+{{- else -}}
+  {{- with .Summary -}}
+    {{- $description = . | plainify | truncate 160 -}}
+  {{- else -}}
+    {{- with .Site.Params.description -}}
+      {{- $description = . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if $description -}}
+<meta name="description" content="{{ $description }}">
+{{- end -}}
+
+{{- with .Params.keywords -}}
+<meta name="keywords" content="{{ delimit . ", " }}">
+{{- end -}}
+
+{{- with .Params.canonicalURL -}}
+<link rel="canonical" href="{{ . }}">
+{{- else -}}
+<link rel="canonical" href="{{ .Permalink }}">
+{{- end -}}
+
+{{- if or .Draft (eq .Kind "404") -}}
+<meta name="robots" content="noindex, nofollow">
+{{- else -}}
+<meta name="robots" content="index, follow">
+{{- end -}}
+
+{{- range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .RelPermalink }}" title="{{ $.Site.Title }}">
+{{- end -}}
+
+{{- /* Open Graph */ -}}
+<meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+{{- if $description -}}
+<meta property="og:description" content="{{ $description }}">
+{{- end -}}
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:locale" content="{{ or .Site.Language.Locale `zh_CN` }}">
+
+{{- $ogImage := "" -}}
+{{- with .Params.images -}}
+  {{- $ogImage = index . 0 | absURL -}}
+{{- else -}}
+  {{- with .Site.Params.defaultOgImage -}}
+    {{- $ogImage = . | absURL -}}
+  {{- end -}}
+{{- end -}}
+{{- if $ogImage -}}
+<meta property="og:image" content="{{ $ogImage }}">
+{{- end -}}
+
+{{- if .IsPage -}}
+{{- with .Date }}<meta property="article:published_time" content="{{ .Format "2006-01-02T15:04:05-07:00" }}">{{ end -}}
+{{- with .Lastmod }}<meta property="article:modified_time" content="{{ .Format "2006-01-02T15:04:05-07:00" }}">{{ end -}}
+{{- end -}}
+
+{{- /* Twitter Card */ -}}
+{{- if $ogImage -}}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{ $ogImage }}">
+{{- else -}}
+<meta name="twitter:card" content="summary">
+{{- end -}}
+<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+{{- if $description -}}
+<meta name="twitter:description" content="{{ $description }}">
+{{- end -}}
+{{- with .Site.Params.twitterSite -}}
+<meta name="twitter:site" content="{{ . }}">
+{{- end -}}
+
+{{- /* JSON-LD structured data */ -}}
+{{- if .Site.Params.enableStructuredData -}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{{ if .IsPage }}Article{{ else }}WebSite{{ end }}",
+  "headline": "{{ .Title }}",
+  "url": "{{ .Permalink }}",
+  {{- if $description }}
+  "description": "{{ $description }}",
+  {{- end }}
+  {{- if .IsPage }}
+  {{- with .Date }}
+  "datePublished": "{{ .Format "2006-01-02T15:04:05-07:00" }}",
+  {{- end }}
+  {{- with .Lastmod }}
+  "dateModified": "{{ .Format "2006-01-02T15:04:05-07:00" }}",
+  {{- end }}
+  {{- with .Site.Params.author }}
+  "author": { "@type": "Person", "name": "{{ . }}" },
+  {{- end }}
+  "wordCount": "{{ .WordCount }}"
+  {{- else }}
+  "name": "{{ .Site.Title }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ .Site.BaseURL }}search/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+  {{- end }}
+}
+</script>
+{{- end -}}
+
+{{- /* ======================================================================
+   Theme original — favicon, CSS, fonts, KaTeX, JS
+   ====================================================================== */ -}}
+
+{{- $faviconPath := site.Params.favicon | default "favicon.svg" -}}
+{{- $faviconHref := $faviconPath | relURL -}}
+{{- with site.Params.faviconVersion -}}
+  {{- $faviconHref = printf "%s?v=%v" $faviconHref . -}}
+{{- end -}}
+<link rel="icon" href="{{ $faviconHref }}"{{ if hasSuffix $faviconPath ".svg" }} type="image/svg+xml"{{ end }} sizes="any">
+
+{{ partial "head/css.html" . }}
+{{ partial "head/fonts.html" . }}
+
+{{- $raw := .RawContent | default "" -}}
+{{- $hasPassthroughCodeblock := gt (len (findRE "(?m)^```passthrough\\b" $raw)) 0 -}}
+{{- $hasDisplayMath := or (gt (len (findRE "\\$\\$[^\\$]+\\$\\$" $raw)) 0) (in $raw "\\[") -}}
+{{- $hasInlineMath := or (gt (len (findRE "\\$[^\\$]+\\$" $raw)) 0) (in $raw "\\(") -}}
+{{- $needsKatexCss := or $hasPassthroughCodeblock (or $hasDisplayMath $hasInlineMath) -}}
+{{- $needsAutoRender := or $hasDisplayMath $hasInlineMath -}}
+{{- if $needsKatexCss -}}
+  <link href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" rel="stylesheet">
+{{- end -}}
+{{- if $needsAutoRender -}}
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (typeof renderMathInElement === 'function') {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\\\\[", right: "\\\\]", display: true},
+          {left: "\\\\(", right: "\\\\)", display: false}
+        ],
+        throwOnError: false,
+        ignoredTags: ["script","noscript","style","textarea","pre","code"]
+      });
+    }
+  });
+  </script>
+{{- end -}}
+
+{{ partial "head/js.html" . }}

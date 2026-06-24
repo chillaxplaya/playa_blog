@@ -1,9 +1,108 @@
+# =============================================================================
+# Hugo 站点配置文件
+# =============================================================================
+
+# 站点 URL（部署到生产环境时修改为实际域名）
 baseURL = 'https://example.org/'
-locale = 'en-us'
-title = 'My New Hugo Project'
-theme = "hugo-trainsh"
-[caches]
-  [caches.images]
-    dir = ':cacheDir/images'
+
+# 站点语言与区域
+locale = 'zh-cn'
+# Hugo 内部语言配置：内容主要使用中文
+
+# 站点标题（显示在浏览器标签页和页面 header）
+title = 'Playa Blog'
+
+# 使用的主题
+theme = 'hugo-trainsh'
+
+# =============================================================================
+# 分类法配置
+# =============================================================================
+# categories 用于内容大类分类（tech / life / reading）
+# tags 用于横向关键词标注
+[taxonomies]
+  category = 'categories'
+  tag = 'tags'
+
+# =============================================================================
+# 站点级参数（主题和自定义功能使用）
+# =============================================================================
 [params]
-mainSections = ["posts"]
+  # 哪些 section 的内容算作"博客文章"，会出现在列表页和 feed 中。
+  # 设置为你计划发布文章的目录名。
+  mainSections = ['posts', 'notes', 'books']
+
+  # 站点描述（SEO 默认 description，在首页使用）
+  description = '技术分享 · 生活随笔 · 读书笔记'
+
+  # 站点作者
+  author = 'Playa'
+
+  # 默认配色方案：retro | light | dark
+  # defaultColorScheme = 'retro'
+
+  # Favicon（放在 static/ 目录下）
+  # favicon = 'favicon.svg'
+
+  # ------------------------------- SEO 配置 ---------------------------------
+  # Open Graph 默认图片（用于没有单独设置 images 的页面）
+  defaultOgImage = '/images/og-default.jpg'
+
+  # Twitter Card 站点账号（可选）
+  # twitterSite = '@your_twitter'
+
+  # 是否启用 JSON-LD 结构化数据（对 Google 搜索展示有帮助）
+  enableStructuredData = true
+
+  # ------------------------------- 首页配置 ---------------------------------
+  [params.home]
+    # 首页欢迎语（markdown 格式）
+    intro = '欢迎来到我的博客。这里记录技术学习、生活随想和读书笔记。'
+
+    # 首页是否启用文章 feed 列表
+    [params.home.feed]
+      enabled = true
+      pageSize = 5
+
+# =============================================================================
+# 永久链接规则
+# =============================================================================
+# Hugo 默认行为已满足需求：
+#   content/posts/my-post.md        → /posts/my-post/
+#   content/posts/my-post/index.md  → /posts/my-post/
+# 如需自定义，可为每个 section 单独配置 permalink 模式。
+# 参考：https://gohugo.io/content-management/urls/
+# [permalinks]
+#   posts = '/posts/:slug/'
+#   notes = '/notes/:slug/'
+
+# =============================================================================
+# 输出格式配置
+# =============================================================================
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+  section = ['HTML', 'RSS']
+
+# 生成 index.json 供搜索功能使用
+[outputFormats.JSON]
+  mediaType = 'application/json'
+  baseName = 'index'
+
+# =============================================================================
+# 站点地图（自动生成 sitemap.xml，利于 SEO）
+# =============================================================================
+[sitemap]
+  changefreq = 'weekly'
+  priority = 0.5
+
+# =============================================================================
+# Markdown 渲染配置
+# =============================================================================
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # 允许在 Markdown 中直接使用 HTML
+  [markup.highlight]
+    style = 'monokai'
+    lineNos = true
+    lineNumbersInTable = false

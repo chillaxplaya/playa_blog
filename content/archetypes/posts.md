@@ -7,11 +7,11 @@
 
 # -------------------------------- 核心字段 ----------------------------------
 # 文章标题（必填）。hugo new 会自动从文件名生成，手动修改即可。
-title = '{{ replace .File.ContentBaseName "-" " " | title }}'
+title = 'Posts'
 
 # 发布日期（必填）。格式为 ISO 8601: YYYY-MM-DDTHH:MM:SS+时区偏移
 # hugo new 时会自动填入当前时间；可手动改为定时发布或回溯日期。
-date = '{{ .Date }}'
+date = '2026-06-24T08:49:48+08:00'
 
 # 是否为草稿（必填）。draft = true 的文章在生产构建（hugo build）中不会被渲染，
 # 但在 hugo server 开发模式下默认可见（加 -D 参数）。
