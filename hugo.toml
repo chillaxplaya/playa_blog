@@ -13,7 +13,7 @@ locale = 'zh-cn'
 title = 'Playa Blog'
 
 # 使用的主题
-theme = 'hugo-trainsh'
+theme = 'digio-theme'
 
 # =============================================================================
 # 分类法配置
